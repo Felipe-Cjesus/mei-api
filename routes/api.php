@@ -5,6 +5,7 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\DasPaymentController;
+use App\Http\Controllers\AlertController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -19,6 +20,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenses', ExpenseController::class);
     Route::apiResource('incomes', IncomeController::class);
     Route::apiResource('das-payments', DasPaymentController::class);
+
+    Route::get('/alerts', [AlertController::class, 'index']);
+    Route::put('/alerts/{id}/read', [AlertController::class, 'markAsRead']);
 });
 
 // Route::get('/user', function (Request $request) {
