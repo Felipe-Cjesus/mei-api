@@ -3,6 +3,8 @@
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\IncomeController;
+use App\Http\Controllers\DasPaymentController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,10 +16,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::apiResource('invoices', InvoiceController::class);
-});
-
-Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('expenses', ExpenseController::class);
+    Route::apiResource('incomes', IncomeController::class);
+    Route::apiResource('das-payments', DasPaymentController::class);
 });
 
 // Route::get('/user', function (Request $request) {

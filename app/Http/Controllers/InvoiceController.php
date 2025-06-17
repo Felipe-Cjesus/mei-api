@@ -13,7 +13,8 @@ class InvoiceController extends Controller
     
     public function index()
     {
-        return Invoice::where('user_id', Auth::id())->get();
+        $invoices = Invoice::where('user_id', Auth::id())->orderByDesc('date')->get();
+        return response()->json($invoices);
     }
 
     public function store(Request $request)
@@ -26,28 +27,28 @@ class InvoiceController extends Controller
             'nf_url'      => 'nullable|string',
         ]);
 
-        $nota = Invoice::create([
+        $invoice = Invoice::create([
             'user_id' => Auth::id(),
             ...$validated
         ]);
 
-        return response()->json($nota, 201);
+        return response()->json($invoice, 201);
     }
 
     public function show($id)
     {
-        // $nota = Invoice::where('user_id', Auth::id())->findOrFail($id);
-        $nota = Invoice::findOrFail($id);
-        $this->authorize('view', $nota);
+        // $invoice = Invoice::where('user_id', Auth::id())->findOrFail($id);
+        $invoice = Invoice::findOrFail($id);
+        $this->authorize('view', $invoice);
 
-        return response()->json($nota);
+        return response()->json($invoice);
     }
 
     public function update(Request $request, $id)
     {
-        // $nota = Invoice::where('user_id', Auth::id())->findOrFail($id);
-        $nota = Invoice::findOrFail($id);
-        $this->authorize('update', $nota);
+        // $invoice = Invoice::where('user_id', Auth::id())->findOrFail($id);
+        $invoice = Invoice::findOrFail($id);
+        $this->authorize('update', $invoice);
 
         $validated = $request->validate([
             'number'      => 'sometimes|string|max:255',
@@ -57,19 +58,19 @@ class InvoiceController extends Controller
             'nf_url'      => 'nullable|string',
         ]);
 
-        $nota->update($validated);
+        $invoice->update($validated);
 
-        return response()->json($nota);
+        return response()->json($invoice);
     }
 
     public function destroy($id)
     {
-        // $nota = Invoice::where('user_id', Auth::id())->findOrFail($id);
-        $nota = Invoice::findOrFail($id);
-        $this->authorize('delete', $nota);
+        // $invoice = Invoice::where('user_id', Auth::id())->findOrFail($id);
+        $invoice = Invoice::findOrFail($id);
+        $this->authorize('delete', $invoice);
 
-        $nota->delete();
+        $invoice->delete();
 
-        return response()->json(['message' => 'Nota fiscal excluída com sucesso']);
+        return response()->json(['message' => 'Invoice deleted successfully']);
     }
 }
