@@ -20,6 +20,12 @@ class DasPaymentController extends Controller
                 page: $request->get('page', 1),
                 perPage: $request->get('per_page', 50)
             );
+
+            $payments = $payments->toArray();
+            
+            if(isset($payments['links'])) {
+                unset($payments['links']);
+            }
         }
 
         if (!$payments) {
@@ -30,7 +36,7 @@ class DasPaymentController extends Controller
         }
 
         return response()->json([
-            'data'    => $payments
+            'data'    => $payments,
         ]);
     }
 
