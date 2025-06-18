@@ -67,15 +67,15 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 ---
 ## 🗺️ Roadmap
 
-- [x]✅ Análise dos requisitos
-- [x]✅ Criação do diagrama do banco de dados
-- [x]✅ Desenvolvimento do CRUD dos endpoints da API
-- [x]✅ Filtro de alertas por leitura e tipo
-- [x]✅ Padronização de mensagens de resposta
-- [ ]🔜 Upload de notas fiscais (PDF/XML)
-- [ ]🔜 Dashboard com gráficos
-- [ ]🔜 Aplicativo React Native
-- [ ]🔜 Integração externa com sistemas de emissão NF-e
+- ✅ Análise dos requisitos
+- ✅ Criação do diagrama do banco de dados
+- ✅ Desenvolvimento do CRUD dos endpoints da API
+- ✅ Filtro de alertas por leitura e tipo
+- ✅ Padronização de mensagens de resposta
+- 🔜 Upload de notas fiscais (PDF/XML)
+- 🔜 Dashboard com gráficos
+- 🔜 Aplicativo React Native
+- 🔜 Integração externa com sistemas de emissão NF-e
 
 ---
 
