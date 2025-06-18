@@ -16,16 +16,16 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 
 ## 🚀 Tecnologias
 
-- ? [Laravel 11](https://laravel.com/docs/11.x)
-- ? [PHP 8.2+](https://www.php.net/releases/8.2/)
-- ? [React Native](https://reactnative.dev/)
-- ? [MySQL 8.x](https://dev.mysql.com/doc/)
-- ? [Composer](https://getcomposer.org/)
-- ? [NPM](https://www.npmjs.com/)
-- ? Artisan Commands
-- ? Jobs agendados (via `schedule:run`)
-- ? Estrutura RESTful com Responses padronizadas
-- ? Suporte a autenticação com Sanctum
+- [Laravel 11](https://laravel.com/docs/11.x)
+- [PHP 8.2+](https://www.php.net/releases/8.2/)
+- [React Native](https://reactnative.dev/)
+- [MySQL 8.x](https://dev.mysql.com/doc/)
+- [Composer](https://getcomposer.org/)
+- [NPM](https://www.npmjs.com/)
+- Artisan Commands
+- Jobs agendados (via `schedule:run`)
+- Estrutura RESTful com Responses padronizadas
+- Suporte a autenticação com Sanctum
 
 ---
 ## 📚 Objetivos do Projeto
@@ -65,7 +65,7 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 
 ## 🛠️ Em desenvolvimento
 ---
-### ??? Roadmap
+## 🗺️ Roadmap
 
 - [x]✅ Análise dos requisitos
 - [x]✅ Criação do diagrama do banco de dados
