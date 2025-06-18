@@ -11,9 +11,18 @@ class InvoiceController extends Controller
 {
     use AuthorizesRequests;
     
-    public function index()
+    public function index(Request $request)
     {
         $invoices = Invoice::where('user_id', Auth::id())->orderByDesc('date')->get();
+        
+        if($invoices)
+        {
+            $invoices = Invoice::paginate(
+                page: $request->get('page', 1),
+                perPage: $request->get('per_page', 50)
+            );
+        }
+
         return response()->json($invoices);
     }
 

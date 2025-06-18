@@ -11,9 +11,17 @@ class IncomeController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(Request $request)
     {
         $incomes = Income::where('user_id', Auth::id())->orderByDesc('date')->get();
+        
+        if($incomes) {
+            $incomes = Income::paginate(
+                page: $request->get('page', 1),
+                perPage: $request->get('per_page', 50)
+            );
+        }
+        
         return response()->json($incomes);
     }
 

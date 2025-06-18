@@ -12,9 +12,18 @@ class ExpenseController extends Controller
     use AuthorizesRequests;
     
     // Listar todas as despesas do usuário autenticado
-    public function index()
+    public function index(Request $request)
     {
         $expenses = Expense::where('user_id', Auth::id())->orderByDesc('date')->get();
+
+        if($expenses)
+        {
+            $expenses = Expense::paginate(
+                page: $request->get('page', 1),
+                perPage: $request->get('per_page', 50)
+            );
+        }
+        
         return response()->json($expenses);
     }
 

@@ -11,10 +11,27 @@ class DasPaymentController extends Controller
 {
     use AuthorizesRequests;
 
-    public function index()
+    public function index(Request $request)
     {
         $payments = DasPayment::where('user_id', Auth::id())->orderByDesc('due_date')->get();
-        return response()->json($payments);
+        if($payments)
+        {
+            $payments = DasPayment::paginate(
+                page: $request->get('page', 1),
+                perPage: $request->get('per_page', 50)
+            );
+        }
+
+        if (!$payments) {
+            return response()->json([
+                'message' => 'Nothing found.',
+                'data'    => null
+            ], 404);
+        }
+
+        return response()->json([
+            'data'    => $payments
+        ]);
     }
 
     public function store(Request $request)
@@ -31,20 +48,47 @@ class DasPaymentController extends Controller
 
         $payment = DasPayment::create($validated);
 
-        return response()->json($payment, 201);
+        if (!$payment) {
+            return response()->json([
+                'message' => 'error.',
+                'data'    => null
+            ], 400);
+        }
+
+        return response()->json([
+            'data'    => $payment
+        ], 201);
     }
 
     public function show($id)
     {
         $payment = DasPayment::findOrFail($id);
+        
+        if (!$payment) {
+            return response()->json([
+                'message' => 'Document not found.',
+                'data'    => null
+            ], 404);
+        }
+
         $this->authorize('view', $payment);
 
-        return response()->json($payment);
+        return response()->json([
+            'data'    => $payment
+        ]);
     }
 
     public function update(Request $request, $id)
     {
         $payment = DasPayment::findOrFail($id);
+        
+        if (!$payment) {
+            return response()->json([
+                'message' => 'Not found.',
+                'data'    => null
+            ], 404);
+        }
+
         $this->authorize('update', $payment);
 
         $validated = $request->validate([
@@ -57,16 +101,26 @@ class DasPaymentController extends Controller
 
         $payment->update($validated);
 
-        return response()->json($payment);
+        return response()->json([
+            'data'    => $payment
+        ]);
     }
 
     public function destroy($id)
     {
         $payment = DasPayment::findOrFail($id);
+        
+        if (!$payment) {
+            return response()->json([
+                'message' => 'Document not found.',
+                'data'    => null
+            ], 404);
+        }
+
         $this->authorize('delete', $payment);
 
         $payment->delete();
 
-        return response()->json(['message' => 'DAS payment deleted successfully']);
+        return response()->json([], 204);
     }
 }

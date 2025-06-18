@@ -28,7 +28,7 @@ class AlertController extends Controller
     
         if (!$alerts) {
             return response()->json([
-                'message' => 'Não foi possível encontrar o alerta.',
+                'message' => 'Alert not found.',
                 'data'    => null
             ], 404);
         }
@@ -46,16 +46,15 @@ class AlertController extends Controller
 
         if (!$alert) {
             return response()->json([
-                'message' => 'Não foi possível encontrar o alerta.',
+                'message' => 'Alert not found.',
                 'data'    => null
             ], 404);
         }
 
         $alert->update(['read' => true, 'read_at' => now()]);
 
-        // return response()->json(['message' => 'Alert marked as read']);
         return response()->json([
-            'message' => 'Alerta marcado como lido',
+            'message' => 'Alert marked as read',
             'data'    => $alert
         ]);
     }
