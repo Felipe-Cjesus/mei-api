@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Alert;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Helpers\ApiResponse;
 
 class AlertController extends Controller
 {
@@ -27,15 +28,10 @@ class AlertController extends Controller
         $alerts = $query->orderBy('created_at', 'desc')->get();
     
         if (!$alerts) {
-            return response()->json([
-                'message' => 'Alert not found.',
-                'data'    => null
-            ], 404);
+            return ApiResponse::error('Alert not found.', 404);
         }
 
-        return response()->json([
-            'data' => $alerts
-        ]);
+        return ApiResponse::sucessWithoutMessage($alerts);
     }
 
     public function markAsRead($id)
@@ -45,17 +41,11 @@ class AlertController extends Controller
             ->firstOrFail();
 
         if (!$alert) {
-            return response()->json([
-                'message' => 'Alert not found.',
-                'data'    => null
-            ], 404);
+            return ApiResponse::error('Alert not found.', 404);
         }
 
         $alert->update(['read' => true, 'read_at' => now()]);
 
-        return response()->json([
-            'message' => 'Alert marked as read',
-            'data'    => $alert
-        ]);
+        return ApiResponse::success('Alert marked as read', $alert);
     }
 }

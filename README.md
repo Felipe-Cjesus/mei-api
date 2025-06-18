@@ -1,61 +1,118 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+![Laravel](https://img.shields.io/badge/Laravel-11.x-ff2d20?style=for-the-badge&logo=laravel&logoColor=white)
+![PHP](https://img.shields.io/badge/PHP-8.2+-777bb4?style=for-the-badge&logo=php&logoColor=white)
+![MySQL](https://img.shields.io/badge/MySQL-8.x-4479A1?style=for-the-badge&logo=mysql&logoColor=white)
+![Composer](https://img.shields.io/badge/Composer-2.x-885630?style=for-the-badge&logo=composer&logoColor=white)
+![NPM](https://img.shields.io/badge/NPM-9.x-CB3837?style=for-the-badge&logo=npm&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)
+[![Status](https://img.shields.io/badge/status-Em%20Desenvolvimento-yellow.svg)]()
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+---
+# ?? MEI Manager API
 
-## About Laravel
+Sistema de gerenciamento para **Microempreendedor Individual (MEI)**.  
+Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11**, com foco na organização de notas fiscais, receitas, despesas, controle de pagamento da guia DAS e notificações automatizadas.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+---
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+## ?? Tecnologias utilizadas
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+- ? [Laravel 11](https://laravel.com/docs/11.x)
+- ? [PHP 8.2+](https://www.php.net/releases/8.2/)
+- ? [React Native](https://reactnative.dev/)
+- ? [MySQL 8.x](https://dev.mysql.com/doc/)
+- ? [Composer](https://getcomposer.org/)
+- ? [NPM](https://www.npmjs.com/)
+- ? Artisan Commands
+- ? Jobs agendados (via `schedule:run`)
+- ? Estrutura RESTful com Responses padronizadas
+- ? Suporte a autenticação com Sanctum
 
-## Learning Laravel
+---
+## ?? Objetivos do Projeto
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+- Criar back-end da API utilizando laravel.
+- Consumir API com aplicativo mobile desenvolvido em **React Native**
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+---
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## ?? Funcionalidades atuais
 
-## Laravel Sponsors
+### ?? Notas Fiscais (`invoices`)
+- Cadastro de notas com número, data, valor e link do XML/PDF
+- Listagem das notas do usuário autenticado
+- Upload/armazenamento opcional do documento
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+### ?? Receitas (`income`)
+- Lançamento de valores recebidos por data
+- Utilizado para controle de faturamento anual
 
-### Premium Partners
+### ?? Despesas (`expense`)
+- Lançamento de valores de despesas
+- Utilizado para controle e gestão financeira
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+### ?? DAS (`das`)
+- Cadastro de guias DAS pagas ou com vencimento
+- Armazenamento de valor, competência e status
 
-## Contributing
+### ?? Notificações (`alerts`)
+- Notificações automáticas sobre:
+  - Vencimento do DAS (3 dias antes)
+  - Limite de faturamento do MEI
+- Rota para listar, filtrar por tipo/leitura, e marcar como lido
+- Executadas via comando agendado `alerts:generate`
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+---
 
-## Code of Conduct
+## ??? Em desenvolvimento
+---
+### ??? Roadmap
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+- [x]? Análise dos requisitos
+- [x]? Criação do diagrama do banco de dados
+- [x]? Desenvolvimento do CRUD dos endpoints da API
+- [x]? Filtro de alertas por leitura e tipo
+- [x]? Padronização de mensagens de resposta
+- [ ]?? Upload de notas fiscais (PDF/XML)
+- [ ]?? Dashboard com gráficos
+- [ ]?? Aplicativo React Native
+- [ ]?? Integração externa com sistemas de emissão NF-e
 
-## Security Vulnerabilities
+---
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+## ?? Instalação
 
-## License
+```bash
+git clone https://github.com/seu-usuario/mei-manager-api.git
+cd mei-manager-api
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+# Instale as dependências
+composer install
+
+# Copie o .env e configure
+cp .env.example .env
+php artisan key:generate
+
+# Configure banco de dados no .env
+php artisan migrate
+
+# Crie usuário de teste, se necessário
+php artisan tinker
+>>> \App\Models\User::factory()->create()
+
+#Gerar token do usuário utilizando o endpoint
+>>> /register
+
+#Utilizar o token gerado no postman para demais requisições
+>>> /login 
+```
+
+---
+
+## ????? Autor
+
+Projeto desenvolvido por **[Felipe Costa de Jesus]** — [LinkedIn](https://www.linkedin.com/in/Felipe-Cjesus)  
+Contato: felipecosta.developer@gmail.com
+
+---
+
+**Licença:** Este projeto está licenciado sob a licença MIT.

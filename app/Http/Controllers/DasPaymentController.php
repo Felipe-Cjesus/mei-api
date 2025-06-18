@@ -6,6 +6,9 @@ use App\Models\DasPayment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Helpers\ApiResponse;
+
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class DasPaymentController extends Controller
 {
@@ -22,22 +25,17 @@ class DasPaymentController extends Controller
             );
 
             $payments = $payments->toArray();
-            
+
             if(isset($payments['links'])) {
                 unset($payments['links']);
             }
         }
 
         if (!$payments) {
-            return response()->json([
-                'message' => 'Nothing found.',
-                'data'    => null
-            ], 404);
+            return ApiResponse::error('Nothing found.', 404);
         }
 
-        return response()->json([
-            'data'    => $payments,
-        ]);
+        return ApiResponse::sucessWithoutMessage($payments);
     }
 
     public function store(Request $request)
@@ -55,33 +53,30 @@ class DasPaymentController extends Controller
         $payment = DasPayment::create($validated);
 
         if (!$payment) {
-            return response()->json([
-                'message' => 'error.',
-                'data'    => null
-            ], 400);
+            return ApiResponse::error('error.', 400);
         }
 
-        return response()->json([
-            'data'    => $payment
-        ], 201);
+        return ApiResponse::sucessWithoutMessage($payment,201);
     }
 
     public function show($id)
     {
-        $payment = DasPayment::findOrFail($id);
-        
-        if (!$payment) {
-            return response()->json([
-                'message' => 'Document not found.',
-                'data'    => null
-            ], 404);
+        try 
+        {
+            // $payment = DasPayment::findOrFail($id);
+            $payment = DasPayment::find($id);
+
+            if (!$payment) {
+                return ApiResponse::error('Id not found.', 404,);
+            }
+
+            $this->authorize('view', $payment);
+
+            return ApiResponse::sucessWithoutMessage($payment);
         }
-
-        $this->authorize('view', $payment);
-
-        return response()->json([
-            'data'    => $payment
-        ]);
+        catch (ModelNotFoundException $e) {
+            return ApiResponse::error($e->getMessage(), 404);
+        }
     }
 
     public function update(Request $request, $id)
@@ -89,10 +84,7 @@ class DasPaymentController extends Controller
         $payment = DasPayment::findOrFail($id);
         
         if (!$payment) {
-            return response()->json([
-                'message' => 'Not found.',
-                'data'    => null
-            ], 404);
+            return ApiResponse::error('Id not found.', 404);
         }
 
         $this->authorize('update', $payment);
@@ -107,9 +99,7 @@ class DasPaymentController extends Controller
 
         $payment->update($validated);
 
-        return response()->json([
-            'data'    => $payment
-        ]);
+        return ApiResponse::sucessWithoutMessage($payment);
     }
 
     public function destroy($id)
@@ -117,16 +107,13 @@ class DasPaymentController extends Controller
         $payment = DasPayment::findOrFail($id);
         
         if (!$payment) {
-            return response()->json([
-                'message' => 'Document not found.',
-                'data'    => null
-            ], 404);
+            return ApiResponse::error('Id not found.', 404);
         }
 
         $this->authorize('delete', $payment);
 
         $payment->delete();
 
-        return response()->json([], 204);
+        return ApiResponse::sucessWithoutMessage([],204);
     }
 }
