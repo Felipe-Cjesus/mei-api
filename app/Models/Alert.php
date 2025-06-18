@@ -14,6 +14,7 @@ class Alert extends Model
         'title',
         'message',
         'type',
+        'read',
         'read_at',
     ];
 

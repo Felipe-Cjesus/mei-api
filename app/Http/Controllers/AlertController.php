@@ -9,13 +9,33 @@ use Illuminate\Support\Facades\Auth;
 
 class AlertController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $alerts = Alert::where('user_id', Auth::id())
-            ->orderByDesc('created_at')
-            ->get();
+        $query = Alert::where('user_id', Auth::id());
 
-        return response()->json($alerts);
+        // Filtro por leitura
+        if ($request->has('read')) {
+            $read = $request->boolean('read');
+            $query->where('read', $read);
+        }
+    
+        // Filtro por tipo
+        if ($request->filled('type')) {
+            $query->where('type', $request->input('type'));
+        }
+    
+        $alerts = $query->orderBy('created_at', 'desc')->get();
+    
+        if (!$alerts) {
+            return response()->json([
+                'message' => 'Não foi possível encontrar o alerta.',
+                'data'    => null
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $alerts
+        ]);
     }
 
     public function markAsRead($id)
@@ -24,8 +44,19 @@ class AlertController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        $alert->update(['read_at' => now()]);
+        if (!$alert) {
+            return response()->json([
+                'message' => 'Não foi possível encontrar o alerta.',
+                'data'    => null
+            ], 404);
+        }
 
-        return response()->json(['message' => 'Alert marked as read']);
+        $alert->update(['read' => true, 'read_at' => now()]);
+
+        // return response()->json(['message' => 'Alert marked as read']);
+        return response()->json([
+            'message' => 'Alerta marcado como lido',
+            'data'    => $alert
+        ]);
     }
 }
