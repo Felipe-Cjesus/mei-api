@@ -61,6 +61,13 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 - Rota para listar, filtrar por tipo/leitura, e marcar como lido
 - Executadas via comando agendado `alerts:generate`
 
+### 🔹 Relatório Mensal (`reports/monthly`)
+- Retorna os seguintes totais mensais:
+  - Notas Fiscais
+  - Receitas
+  - Despesas
+  - Balanço Mensal
+
 ---
 
 ## 🛠️ Em desenvolvimento
@@ -72,8 +79,8 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 - ✅ Desenvolvimento do CRUD dos endpoints da API
 - ✅ Filtro de alertas por leitura e tipo
 - ✅ Padronização de mensagens de resposta
+- ✅ Dashboard com gráficos
 - 🔜 Upload de notas fiscais (PDF/XML)
-- 🔜 Dashboard com gráficos
 - 🔜 Aplicativo React Native
 - 🔜 Integração externa com sistemas de emissão NF-e
 
