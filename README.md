@@ -49,6 +49,7 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 ### 🔹 Despesas (`expense`)
 - Lançamento de valores de despesas
 - Utilizado para controle e gestão financeira
+- Upload/armazenamento opcional do documento
 
 ### 🔹 DAS (`das`)
 - Cadastro de guias DAS pagas ou com vencimento
@@ -80,9 +81,15 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 - ✅ Filtro de alertas por leitura e tipo
 - ✅ Padronização de mensagens de resposta
 - ✅ Dashboard com gráficos
-- 🔜 Upload de notas fiscais (PDF/XML)
+- ✅ Upload de notas fiscais (PDF/XML)
 - 🔜 Aplicativo React Native
-- 🔜 Integração externa com sistemas de emissão NF-e
+
+---
+
+## 🔮 Implementações futuras
+
+- 🆕 Integração externa com sistemas de emissão NF-e
+- 🆕 Integração com emissão e pagamento da guia DAS
 
 ---
 
