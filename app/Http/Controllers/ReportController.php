@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\ApiResponse;
+use App\Models\DasPayment;
 use App\Models\Expense;
 use App\Models\Income;
 use App\Models\Invoice;
@@ -28,10 +29,11 @@ class ReportController extends Controller
         // Inicializa todos os 12 meses com valores zerados
         $months = collect(range(1, 12))->map(function ($month) {
             return [
-                'month' => str_pad($month, 2, '0', STR_PAD_LEFT),
-                'invoice_total' => 0.00,
-                'income_total' => 0.00,
-                'expense_total' => 0.00,
+                'month'             => str_pad($month, 2, '0', STR_PAD_LEFT),
+                'invoice_total'     => 0.00,
+                'income_total'      => 0.00,
+                'expense_total'     => 0.00,
+                'daspayment_total'  => 0.00,
             ];
         })->keyBy('month');
 
@@ -80,6 +82,21 @@ class ReportController extends Controller
                 ]));
             });
 
+        // Total de DAS por mês
+        $dasPaymentQuery = DasPayment::where('user_id', $userId)->whereYear('due_date', $year);
+        if ($monthFilter) {
+            $dasPaymentQuery->whereMonth('due_date', $monthFilter);
+        }
+        $dasPaymentQuery->selectRaw('MONTH(due_date) as month, SUM(amount) as total')
+            ->groupByRaw('MONTH(due_date)')
+            ->get()
+            ->each(function ($row) use (&$months) {
+                $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
+                $months->put($monthKey, array_merge($months[$monthKey], [
+                    'daspayment_total' => (float) $row->total,
+                ]));
+            });
+
         if ($monthFilter) {
             $key = str_pad($monthFilter, 2, '0', STR_PAD_LEFT);
             $months = collect([$months->get($key)]);
@@ -87,9 +104,16 @@ class ReportController extends Controller
             $months = $months->values();
         }
 
-        // Calcula o balanço para cada mês (receita - despesa)
+        if ($monthFilter) {
+            $key = str_pad($monthFilter, 2, '0', STR_PAD_LEFT);
+            $months = collect([$months->get($key)]);
+        } else {
+            $months = $months->values();
+        }
+
+        // Calcula o balanço para cada mês (receita - despesa - DAS)
         $months = $months->map(function ($item) {
-            $item['balance'] = round($item['income_total'] - $item['expense_total'], 2);
+            $item['balance'] = round($item['income_total'] - $item['expense_total'] - $item['daspayment_total'], 2);
             return $item;
         });
 

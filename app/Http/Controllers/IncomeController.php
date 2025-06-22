@@ -62,6 +62,7 @@ class IncomeController extends Controller
             'amount'        => 'sometimes|numeric',
             'date'          => 'sometimes|date',
             'type'          => 'sometimes|in:manual,nota_fiscal',
+            'received'      => 'sometimes|boolean',
             'document_path' => 'nullable|string',
         ]);
 

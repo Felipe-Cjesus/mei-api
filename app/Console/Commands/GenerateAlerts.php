@@ -21,10 +21,10 @@ class GenerateAlerts extends Command
         $year  = now()->year;
 
         foreach ($users as $user) {
-            // ---------- DAS vencendo em até 5 dias ----------
+            // ---------- DAS vencendo em até 3 dias ----------
             $dasPayments = DasPayment::where('user_id', $user->id)
                 ->where('status', '!=', 'paid')
-                ->whereBetween('due_date', [$today, $today->copy()->addDays(5)])
+                ->whereBetween('due_date', [$today, $today->copy()->addDays(3)])
                 ->get();
 
             foreach ($dasPayments as $das) {
