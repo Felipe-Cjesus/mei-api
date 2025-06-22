@@ -58,6 +58,7 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
 ### 🔹 Notificações (`alerts`)
 - Notificações automáticas sobre:
   - Vencimento do DAS (3 dias antes)
+  - Guias DAS vencidas
   - Limite de faturamento do MEI
 - Rota para listar, filtrar por tipo/leitura, e marcar como lido
 - Executadas via comando agendado `alerts:generate`
@@ -67,7 +68,8 @@ Este repositório contém o backend da aplicação, desenvolvido em **Laravel 11
   - Notas Fiscais
   - Receitas
   - Despesas
-  - Balanço Mensal
+  - Guias DAS
+  - Balanço Mensal (Receitas - Despesas - Guias DAS)
 
 ---
 
