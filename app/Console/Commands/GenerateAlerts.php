@@ -33,9 +33,24 @@ class GenerateAlerts extends Command
                 $this->createAlertIfNotExists($user->id, $title, $message, 'das');
             }
 
+            // ---------- DAS vencida ----------
+            $dasPaymentsOverdue = DasPayment::where('user_id', $user->id)
+                ->where('status', '!=', 'paid')
+                ->where('status', '!=', 'overdue')
+                ->where('due_date', '<', $today)
+                ->get();
+
+            foreach ($dasPaymentsOverdue as $das) {
+                $das->status = 'overdue';
+                $das->save();
+
+                $title = "DAS vencida";
+                $message = "Sua guia DAS referente a {$das->reference} venceu em " . $das->due_date->format('d/m/Y') . ".";
+                $this->createAlertIfNotExists($user->id, $title, $message, 'das');
+            }
+
             // ---------- Limite de faturamento ----------
             $limit = 81000; // MEI Ref-2025
-            // $year = $today->year;
             $totalIncome = Income::where('user_id', $user->id)
                 ->whereYear('date', $year)
                 ->sum('amount');
