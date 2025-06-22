@@ -13,23 +13,18 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 
 Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login'   , [AuthController::class, 'login']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
+
+    Route::get('/alerts', [AlertController::class, 'index']);
+    Route::put('/alerts/{id}/read', [AlertController::class, 'markAsRead']);
+    Route::get('/reports/monthly', [ReportController::class, 'monthly']);
+
+    Route::apiResource('users', UserController::class);
     Route::apiResource('invoices', InvoiceController::class);
     Route::apiResource('expenses', ExpenseController::class);
     Route::apiResource('incomes', IncomeController::class);
     Route::apiResource('das-payments', DasPaymentController::class);
-
-    Route::get('/alerts', [AlertController::class, 'index']);
-    Route::put('/alerts/{id}/read', [AlertController::class, 'markAsRead']);
 });
-
-Route::middleware('auth:sanctum')->get('/reports/monthly', [ReportController::class, 'monthly']);
-
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
-// Route::get('/users', [UserController::class, 'index']);

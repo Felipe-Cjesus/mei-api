@@ -10,7 +10,7 @@ use Illuminate\Http\Request;
 class UserController extends Controller
 {
     /**
-     * Listagem dos usua?rios
+     * Listagem dos usuários
      * @return \Illuminate\Http\JsonResponse
      * @author  Felipe Costa de Jesus
      * @copyright (c) 13/06/2025
