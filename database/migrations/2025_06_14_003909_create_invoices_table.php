@@ -12,16 +12,14 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('invoices', function (Blueprint $table) {
-            $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id');
+            $table->id();
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('number');
             $table->date('issue_date');
             $table->decimal('value', 10, 2);
             $table->text('description');
             $table->string('nf_url')->nullable();
             $table->timestamps();
-    
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
         });
     }
 

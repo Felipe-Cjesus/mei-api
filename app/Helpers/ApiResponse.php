@@ -9,12 +9,17 @@ class ApiResponse
     /**
      * Retorna resposta de sucesso padronizada.
      */
-    public static function success(string $message, mixed $data = null, int $code = 200): JsonResponse
+    public static function success(mixed $data = null, int $code = 200, string $message = ''): JsonResponse
     {
-        return response()->json([
-            'message' => $message,
-            'data' => $data,
-        ], $code);
+        $response = [];
+
+        if (isset($message) && $message != '') {
+            $response['message'] = $message;
+        }
+
+        $response['data'] = $data;
+
+        return response()->json($response, $code);
     }
 
     /**
@@ -23,18 +28,8 @@ class ApiResponse
     public static function error(string $message, int $code = 400, mixed $data = null): JsonResponse
     {
         return response()->json([
-            'message' => $message,
-            'data' => $data,
-        ], $code);
-    }
-
-    /**
-     * Retorna resposta sem mensagem.
-     */
-    public static function sucessWithoutMessage(mixed $data = [], int $code = 200): JsonResponse
-    {
-        return response()->json([
-            'data' => $data,
+            'message'   => $message,
+            'data'      => $data,
         ], $code);
     }
 }

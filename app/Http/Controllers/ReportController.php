@@ -93,9 +93,9 @@ class ReportController extends Controller
             return $item;
         });
 
-        return ApiResponse::success('Monthly report successfully generated.', [
+        return ApiResponse::success([
             'year' => (int) $year,
             'months' => $months,
-        ]);
+        ],200,'Monthly report successfully generated.');
     }
 }

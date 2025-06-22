@@ -31,7 +31,7 @@ class AlertController extends Controller
             return ApiResponse::error('Alert not found.', 404);
         }
 
-        return ApiResponse::sucessWithoutMessage($alerts);
+        return ApiResponse::success($alerts);
     }
 
     public function markAsRead($id)
@@ -44,8 +44,11 @@ class AlertController extends Controller
             return ApiResponse::error('Alert not found.', 404);
         }
 
-        $alert->update(['read' => true, 'read_at' => now()]);
+        $alert->update([
+            'read'    => true,
+            'read_at' => now()
+        ]);
 
-        return ApiResponse::success('Alert marked as read', $alert);
+        return ApiResponse::success($alert, 200, 'Alert marked as read.');
     }
 }

@@ -35,28 +35,29 @@ class DasPaymentController extends Controller
             return ApiResponse::error('Nothing found.', 404);
         }
 
-        return ApiResponse::sucessWithoutMessage($payments);
+        return ApiResponse::success($payments);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'reference' => 'required|string|max:20', // Ex: 05/2025
-            'due_date' => 'required|date',
-            'payment_date' => 'nullable|date',
-            'amount' => 'required|numeric',
-            'status' => 'required|in:paid,pending,overdue,exempt',
+            'reference'     => 'required|string|max:20', // Ex: 05/2025
+            'due_date'      => 'required|date',
+            'payment_date'  => 'nullable|date',
+            'amount'        => 'required|numeric',
+            'status'        => 'required|in:paid,pending,overdue,exempt',
         ]);
 
-        $validated['user_id'] = Auth::id();
-
-        $payment = DasPayment::create($validated);
+        $payment = DasPayment::create([
+            'user_id' => Auth::id(),
+            ...$validated
+        ]);
 
         if (!$payment) {
             return ApiResponse::error('error.', 400);
         }
 
-        return ApiResponse::sucessWithoutMessage($payment,201);
+        return ApiResponse::success($payment,201," DasPayment created successfully.");
     }
 
     public function show($id)
@@ -72,7 +73,7 @@ class DasPaymentController extends Controller
 
             $this->authorize('view', $payment);
 
-            return ApiResponse::sucessWithoutMessage($payment);
+            return ApiResponse::success($payment);
         }
         catch (ModelNotFoundException $e) {
             return ApiResponse::error($e->getMessage(), 404);
@@ -90,16 +91,16 @@ class DasPaymentController extends Controller
         $this->authorize('update', $payment);
 
         $validated = $request->validate([
-            'reference' => 'sometimes|string|max:20',
-            'due_date' => 'sometimes|date',
-            'payment_date' => 'nullable|date',
-            'amount' => 'sometimes|numeric',
-            'status' => 'sometimes|in:paid,pending,overdue,exempt',
+            'reference'     => 'sometimes|string|max:20',
+            'due_date'      => 'sometimes|date',
+            'payment_date'  => 'nullable|date',
+            'amount'        => 'sometimes|numeric',
+            'status'        => 'sometimes|in:paid,pending,overdue,exempt',
         ]);
 
         $payment->update($validated);
 
-        return ApiResponse::sucessWithoutMessage($payment);
+        return ApiResponse::success($payment);
     }
 
     public function destroy($id)
@@ -114,6 +115,6 @@ class DasPaymentController extends Controller
 
         $payment->delete();
 
-        return ApiResponse::sucessWithoutMessage([],204);
+        return ApiResponse::success([],204, 'DasPayment deleted successfully.');
     }
 }

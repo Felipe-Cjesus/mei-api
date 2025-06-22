@@ -6,6 +6,7 @@ use App\Models\Invoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Helpers\ApiResponse;
 
 class InvoiceController extends Controller
 {
@@ -13,7 +14,7 @@ class InvoiceController extends Controller
     
     public function index(Request $request)
     {
-        $invoices = Invoice::where('user_id', Auth::id())->orderByDesc('date')->get();
+        $invoices = Invoice::where('user_id', Auth::id())->orderByDesc('issue_date')->get();
         
         if($invoices)
         {
@@ -23,7 +24,7 @@ class InvoiceController extends Controller
             );
         }
 
-        return response()->json($invoices);
+        return ApiResponse::success($invoices);
     }
 
     public function store(Request $request)
@@ -34,14 +35,20 @@ class InvoiceController extends Controller
             'value'       => 'required|numeric',
             'description' => 'required|string',
             'nf_url'      => 'nullable|string',
+            'file'        => 'nullable|file|mimes:pdf,xml|max:2048',
         ]);
+
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('invoices', 'public');
+            $validated['nf_url'] = $path;
+        }
 
         $invoice = Invoice::create([
             'user_id' => Auth::id(),
             ...$validated
         ]);
 
-        return response()->json($invoice, 201);
+        return ApiResponse::success($invoice, 201, 'Invoice created successfully');
     }
 
     public function show($id)
@@ -50,7 +57,7 @@ class InvoiceController extends Controller
         $invoice = Invoice::findOrFail($id);
         $this->authorize('view', $invoice);
 
-        return response()->json($invoice);
+        return ApiResponse::success($invoice);
     }
 
     public function update(Request $request, $id)
@@ -69,7 +76,7 @@ class InvoiceController extends Controller
 
         $invoice->update($validated);
 
-        return response()->json($invoice);
+        return ApiResponse::success($invoice);
     }
 
     public function destroy($id)
@@ -80,6 +87,6 @@ class InvoiceController extends Controller
 
         $invoice->delete();
 
-        return response()->json(['message' => 'Invoice deleted successfully']);
+        return ApiResponse::success([],204,'Invoice deleted successfully');
     }
 }

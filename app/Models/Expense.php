@@ -18,8 +18,15 @@ class Expense extends Model
         'document_path',
     ];
 
+    protected $appends = ['document_url'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getDocumentUrlAttribute()
+    {
+        return $this->document_path ? asset('storage/' . $this->document_path) : null;
     }
 }

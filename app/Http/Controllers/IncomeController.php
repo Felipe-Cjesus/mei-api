@@ -6,6 +6,7 @@ use App\Models\Income;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Helpers\ApiResponse;
 
 class IncomeController extends Controller
 {
@@ -22,7 +23,7 @@ class IncomeController extends Controller
             );
         }
         
-        return response()->json($incomes);
+        return ApiResponse::success($incomes);
     }
 
     public function store(Request $request)
@@ -39,7 +40,7 @@ class IncomeController extends Controller
             ...$validated
         ]);
 
-        return response()->json($income, 201);
+        return ApiResponse::success($income, 201, 'Income created successfully');
     }
 
     public function show($id)
@@ -47,7 +48,7 @@ class IncomeController extends Controller
         $income = Income::findOrFail($id);
         $this->authorize('view', $income);
 
-        return response()->json($income);
+        return ApiResponse::success($income);
     }
 
     // Atualizar
@@ -57,16 +58,16 @@ class IncomeController extends Controller
         $this->authorize('update', $income);
 
         $validated = $request->validate([
-            'description' => 'sometimes|string|max:255',
-            'amount' => 'sometimes|numeric',
-            'date' => 'sometimes|date',
-            'type' => 'sometimes|in:manual,nota_fiscal',
+            'description'   => 'sometimes|string|max:255',
+            'amount'        => 'sometimes|numeric',
+            'date'          => 'sometimes|date',
+            'type'          => 'sometimes|in:manual,nota_fiscal',
             'document_path' => 'nullable|string',
         ]);
 
         $income->update($validated);
 
-        return response()->json($income);
+        return ApiResponse::success($income);
     }
 
     // Excluir
@@ -77,6 +78,6 @@ class IncomeController extends Controller
 
         $income->delete();
 
-        return response()->json(['message' => 'Income deleted successfully']);
+        return ApiResponse::success([],204,'Income deleted successfully');
     }
 }

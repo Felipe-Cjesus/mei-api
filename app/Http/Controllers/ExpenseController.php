@@ -6,12 +6,13 @@ use App\Models\Expense;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use App\Helpers\ApiResponse;
 
 class ExpenseController extends Controller
 {
     use AuthorizesRequests;
     
-    // Listar todas as despesas do usuário autenticado
+    // Listar todas as despesas do usuÃ¡rio autenticado
     public function index(Request $request)
     {
         $expenses = Expense::where('user_id', Auth::id())->orderByDesc('date')->get();
@@ -24,34 +25,41 @@ class ExpenseController extends Controller
             );
         }
         
-        return response()->json($expenses);
+        return ApiResponse::success($expenses);
     }
 
     // Criar nova despesa
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'amount' => 'required|numeric',
-            'date' => 'required|date',
-            'type' => 'required|in:manual,nota_fiscal',
+            'description'   => 'required|string|max:255',
+            'amount'        => 'required|numeric',
+            'date'          => 'required|date',
+            'type'          => 'required|in:manual,nota_fiscal',
             'document_path' => 'nullable|string',
+            'file'          => 'nullable|file|mimes:pdf,xml,jpg,jpeg,png|max:2048',
         ]);
 
-        $validated['user_id'] = Auth::id();
+        if ($request->hasFile('file')) {
+            $path = $request->file('file')->store('expenses', 'public');
+            $validated['document_path'] = $path;
+        }
 
-        $expense = Expense::create($validated);
+        $expense = Expense::create([
+            'user_id' => Auth::id(),
+            ...$validated
+        ]);
 
-        return response()->json($expense, 201);
+        return ApiResponse::success($expense, 201, 'Expense created successfully');
     }
 
-    // Mostrar uma despesa específica (do usuário)
+    // Mostrar uma despesa especÃ­fica (do usuÃ¡rio)
     public function show($id)
     {
         $expense = Expense::findOrFail($id);
         $this->authorize('view', $expense);
     
-        return response()->json($expense);
+        return ApiResponse::success($expense);
     }
 
     // Atualizar uma despesa
@@ -61,16 +69,16 @@ class ExpenseController extends Controller
         $this->authorize('update', $expense);
 
         $validated = $request->validate([
-            'description' => 'sometimes|string|max:255',
-            'amount' => 'sometimes|numeric',
-            'date' => 'sometimes|date',
-            'type' => 'sometimes|in:manual,nota_fiscal',
+            'description'   => 'sometimes|string|max:255',
+            'amount'        => 'sometimes|numeric',
+            'date'          => 'sometimes|date',
+            'type'          => 'sometimes|in:manual,nota_fiscal',
             'document_path' => 'nullable|string',
         ]);
 
         $expense->update($validated);
 
-        return response()->json($expense);
+        return ApiResponse::success($expense);
     }
 
     // Excluir uma despesa
@@ -81,6 +89,6 @@ class ExpenseController extends Controller
 
         $expense->delete();
 
-        return response()->json(['message' => 'Expense deleted successfully']);
+        return ApiResponse::success([],204,'Expense deleted successfully');
     }
 }

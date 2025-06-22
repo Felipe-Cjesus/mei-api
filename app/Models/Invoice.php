@@ -20,8 +20,15 @@ class Invoice extends Model
         'nf_url',
     ];
 
+    protected $appends = ['nf_url_full'];
+
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function getNfUrlFullAttribute()
+    {
+        return $this->nf_url ? asset('storage/' . $this->nf_url) : null;
     }
 }
