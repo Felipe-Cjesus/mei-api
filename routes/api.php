@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
 
-Route::post('/users'   , UserController::class);
+Route::get('/users'   , [UserController::class, 'index']);
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login'   , [AuthController::class, 'login']);
