@@ -17,11 +17,15 @@ class UserController extends Controller
      */
     public function index() : JsonResponse
     {
-        $users = User::orderBy('id', 'DESC')->paginate(15);
+        // $users = User::orderBy('id', 'DESC')->paginate(15);
+
+        // return response()->json([
+        //     'status' => true,
+        //     'users'  => $users,
+        // ], 200);
 
         return response()->json([
-            'status' => true,
-            'users'  => $users,
+            'status' => "OK",
         ], 200);
     }
 }
