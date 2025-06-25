@@ -14,10 +14,12 @@ use App\Http\Controllers\AuthController;
 
 Route::get('/users'   , [UserController::class, 'index']);
 
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login'   , [AuthController::class, 'login']);
+// Route::post('/register', [AuthController::class, 'register']);
+// Route::post('/login'   , [AuthController::class, 'login']);
+Route::middleware('throttle:10,1')->post('/login', [AuthController::class, 'login']);
+Route::middleware('throttle:5,1')->post('/register', [AuthController::class, 'register']);
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware(['auth:sanctum', 'throttle:100,1'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
 
     Route::get('/alerts', [AlertController::class, 'index']);
