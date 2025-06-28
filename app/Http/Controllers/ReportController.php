@@ -104,13 +104,6 @@ class ReportController extends Controller
             $months = $months->values();
         }
 
-        if ($monthFilter) {
-            $key = str_pad($monthFilter, 2, '0', STR_PAD_LEFT);
-            $months = collect([$months->get($key)]);
-        } else {
-            $months = $months->values();
-        }
-
         // Calcula o balanço para cada mês (receita - despesa - DAS)
         $months = $months->map(function ($item) {
             $item['balance'] = round($item['income_total'] - $item['expense_total'] - $item['daspayment_total'], 2);
