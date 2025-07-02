@@ -52,7 +52,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'invoice_total' => (float) $row->total,
+                    'invoice_monthly_total' => (float) $row->total,
                 ]));
             });
 
@@ -66,7 +66,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'invoice_quantity' => (int) $row->total,
+                    'invoice_monthly_quantity' => (int) $row->total,
                 ]));
             });
 
@@ -81,7 +81,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'income_total' => (float) $row->total,
+                    'income_monthly_total' => (float) $row->total,
                 ]));
             });
 
@@ -95,7 +95,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'income_quantity' => (int) $row->total,
+                    'income_monthly_quantity' => (int) $row->total,
                 ]));
             });
 
@@ -110,7 +110,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'expense_total' => (float) $row->total,
+                    'expense_monthly_total' => (float) $row->total,
                 ]));
             });
 
@@ -124,7 +124,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'expense_quantity' => (int) $row->total,
+                    'expense_monthly_quantity' => (int) $row->total,
                 ]));
             });
 
@@ -139,7 +139,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'daspayment_total' => (float) $row->total,
+                    'daspayment_monthly_total' => (float) $row->total,
                 ]));
             });
             
@@ -153,7 +153,7 @@ class ReportController extends Controller
             ->each(function ($row) use (&$months) {
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
-                    'das_quantity' => (int) $row->total,
+                    'das_monthly_quantity' => (int) $row->total,
                 ]));
             });
 
@@ -166,7 +166,7 @@ class ReportController extends Controller
 
         // Calcula o balanço para cada mês (receita - despesa - DAS)
         $months = $months->map(function ($item) {
-            $item['balance'] = round($item['income_total'] - $item['expense_total'] - $item['daspayment_total'], 2);
+            $item['balance'] = round($item['income_monthly_total'] - $item['expense_monthly_total'] - $item['daspayment_monthly_total'], 2);
             return $item;
         });
 
@@ -174,14 +174,14 @@ class ReportController extends Controller
             'year'   => (int) $year,
             'months' => $months,
             'total'  => [
-                'invoice_total'     => $months->sum('invoice_total'),
-                'invoice_quantity'  => $months->sum('invoice_quantity'),
-                'income_total'      => $months->sum('income_total'),
-                'income_quantity'   => $months->sum('income_quantity'),
-                'expense_total'     => $months->sum('expense_total'),
-                'expense_quantity'  => $months->sum('expense_quantity'),
-                'daspayment_total'  => $months->sum('daspayment_total'),
-                'das_quantity'      => $months->sum('das_quantity'),
+                'invoice_total'     => $months->sum('invoice_monthly_total'),
+                'invoice_quantity'  => $months->sum('invoice_monthly_quantity'),
+                'income_total'      => $months->sum('income_monthly_total'),
+                'income_quantity'   => $months->sum('income_monthly_quantity'),
+                'expense_total'     => $months->sum('expense_monthly_total'),
+                'expense_quantity'  => $months->sum('expense_monthly_quantity'),
+                'daspayment_total'  => $months->sum('daspayment_monthly_total'),
+                'das_quantity'      => $months->sum('das_monthly_quantity'),
                 'balance'           => $months->sum('balance')
             ],
         ],200,'Monthly report successfully generated.');
