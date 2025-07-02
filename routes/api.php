@@ -7,6 +7,7 @@ use App\Http\Controllers\IncomeController;
 use App\Http\Controllers\DasPaymentController;
 use App\Http\Controllers\AlertController;
 use App\Http\Controllers\ReportController;
+use App\Http\Controllers\EnterpriseController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -31,4 +32,5 @@ Route::middleware(['auth:sanctum', 'throttle:100,1'])->group(function () {
     Route::apiResource('expenses', ExpenseController::class);
     Route::apiResource('incomes', IncomeController::class);
     Route::apiResource('das-payments', DasPaymentController::class);
+    Route::apiResource('enterprises', EnterpriseController::class);
 });

@@ -31,9 +31,13 @@ class ReportController extends Controller
             return [
                 'month'             => str_pad($month, 2, '0', STR_PAD_LEFT),
                 'invoice_total'     => 0.00,
+                'invoice_quantity'  => 0,
                 'income_total'      => 0.00,
+                'income_quantity'   => 0,
                 'expense_total'     => 0.00,
+                'expense_quantity'  => 0,
                 'daspayment_total'  => 0.00,
+                'das_quantity'      => 0
             ];
         })->keyBy('month');
 
@@ -52,6 +56,20 @@ class ReportController extends Controller
                 ]));
             });
 
+        $invoiceQuantity = Invoice::where('user_id', $userId)->whereYear('issue_date', $year);
+        if ($monthFilter) {
+            $invoiceQuantity->whereMonth('issue_date', $monthFilter);
+        }
+        $invoiceQuantity->selectRaw('MONTH(issue_date) as month, COUNT(*) as total')
+            ->groupByRaw('MONTH(issue_date)')
+            ->get()
+            ->each(function ($row) use (&$months) {
+                $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
+                $months->put($monthKey, array_merge($months[$monthKey], [
+                    'invoice_quantity' => (int) $row->total,
+                ]));
+            });
+
         // Total de incomes por mês
         $incomeQuery = Income::where('user_id', $userId)->whereYear('date', $year);
         if ($monthFilter) {
@@ -64,6 +82,20 @@ class ReportController extends Controller
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
                     'income_total' => (float) $row->total,
+                ]));
+            });
+
+        $incomeQuantity = Income::where('user_id', $userId)->whereYear('date', $year);
+        if ($monthFilter) {
+            $incomeQuantity->whereMonth('date', $monthFilter);
+        }
+        $incomeQuantity->selectRaw('MONTH(date) as month, COUNT(*) as total')
+            ->groupByRaw('MONTH(date)')
+            ->get()
+            ->each(function ($row) use (&$months) {
+                $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
+                $months->put($monthKey, array_merge($months[$monthKey], [
+                    'income_quantity' => (int) $row->total,
                 ]));
             });
 
@@ -82,6 +114,20 @@ class ReportController extends Controller
                 ]));
             });
 
+        $expenseQuantity = Expense::where('user_id', $userId)->whereYear('date', $year);
+        if ($monthFilter) {
+            $expenseQuantity->whereMonth('date', $monthFilter);
+        }
+        $expenseQuantity->selectRaw('MONTH(date) as month, COUNT(*) as total')
+            ->groupByRaw('MONTH(date)')
+            ->get()
+            ->each(function ($row) use (&$months) {
+                $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
+                $months->put($monthKey, array_merge($months[$monthKey], [
+                    'expense_quantity' => (int) $row->total,
+                ]));
+            });
+
         // Total de DAS por mês
         $dasPaymentQuery = DasPayment::where('user_id', $userId)->whereYear('due_date', $year);
         if ($monthFilter) {
@@ -94,6 +140,20 @@ class ReportController extends Controller
                 $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
                 $months->put($monthKey, array_merge($months[$monthKey], [
                     'daspayment_total' => (float) $row->total,
+                ]));
+            });
+            
+        $dasQuantityQuery = DasPayment::where('user_id', $userId)->whereYear('due_date', $year);
+        if ($monthFilter) {
+            $dasQuantityQuery->whereMonth('due_date', $monthFilter);
+        }
+        $dasQuantityQuery->selectRaw('MONTH(due_date) as month, COUNT(id) as total')
+            ->groupByRaw('MONTH(due_date)')
+            ->get()
+            ->each(function ($row) use (&$months) {
+                $monthKey = str_pad($row->month, 2, '0', STR_PAD_LEFT);
+                $months->put($monthKey, array_merge($months[$monthKey], [
+                    'das_quantity' => (int) $row->total,
                 ]));
             });
 
@@ -111,8 +171,19 @@ class ReportController extends Controller
         });
 
         return ApiResponse::success([
-            'year' => (int) $year,
+            'year'   => (int) $year,
             'months' => $months,
+            'total'  => [
+                'invoice_total'     => $months->sum('invoice_total'),
+                'invoice_quantity'  => $months->sum('invoice_quantity'),
+                'income_total'      => $months->sum('income_total'),
+                'income_quantity'   => $months->sum('income_quantity'),
+                'expense_total'     => $months->sum('expense_total'),
+                'expense_quantity'  => $months->sum('expense_quantity'),
+                'daspayment_total'  => $months->sum('daspayment_total'),
+                'das_quantity'      => $months->sum('das_quantity'),
+                'balance'           => $months->sum('balance')
+            ],
         ],200,'Monthly report successfully generated.');
     }
 }
