@@ -30,14 +30,14 @@ class ReportController extends Controller
         $months = collect(range(1, 12))->map(function ($month) {
             return [
                 'month'             => str_pad($month, 2, '0', STR_PAD_LEFT),
-                'invoice_total'     => 0.00,
-                'invoice_quantity'  => 0,
-                'income_total'      => 0.00,
-                'income_quantity'   => 0,
-                'expense_total'     => 0.00,
-                'expense_quantity'  => 0,
-                'daspayment_total'  => 0.00,
-                'das_quantity'      => 0
+                'invoice_monthly_total'     => 0.00,
+                'invoice_monthly_quantity'  => 0,
+                'income_monthly_total'      => 0.00,
+                'income_monthly_quantity'   => 0,
+                'expense_monthly_total'     => 0.00,
+                'expense_monthly_quantity'  => 0,
+                'daspayment_monthly_total'  => 0.00,
+                'das_monthly_quantity'      => 0
             ];
         })->keyBy('month');
 

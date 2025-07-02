@@ -27,7 +27,7 @@ class EnterpriseController extends Controller
     {
         $validated = $request->validate([
             'company_name'  => 'required|string|max:255',
-            'company_id'    => 'required|string|min:14|max:14',
+            'company_id'    => 'required|string|min:14|max:18|unique:enterprises,company_id',
             'state'         => 'nullable|string|max:50',
             'city'          => 'nullable|string|max:100',
             'address'       => 'nullable|string|max:255',
@@ -51,7 +51,7 @@ class EnterpriseController extends Controller
 
         $validated = $request->validate([
             'company_name'  => 'sometimes|string|max:255',
-            'company_id'    => 'sometimes|string|min:14|max:14',
+            'company_id'    => 'sometimes|string|min:14|max:18|unique:enterprises,company_id',
             'state'         => 'sometimes|string|max:50',
             'city'          => 'sometimes|string|max:100',
             'address'       => 'sometimes|string|max:255',
