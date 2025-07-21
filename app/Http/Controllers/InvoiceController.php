@@ -14,15 +14,26 @@ class InvoiceController extends Controller
     
     public function index(Request $request)
     {
-        $invoices = Invoice::where('user_id', Auth::id())->orderByDesc('issue_date')->get();
-        
-        if($invoices)
-        {
-            $invoices = Invoice::paginate(
-                page: $request->get('page', 1),
-                perPage: $request->get('per_page', 50)
-            );
+        $perPage = $request->input('perPage', 50);
+        $page = $request->input('page', 1);
+        $year = $request->input('year', now()->year);
+
+        if(isset($year) && ($year == 0 || $year == null || $year == '')) {
+            return ApiResponse::error('Invalid year filter.', 400);
         }
+
+        $invoices = Invoice::where('user_id', Auth::id());
+
+        if ($request->has('year')) {
+            $invoices->whereYear('issue_date', $year);
+        }
+
+        $invoices->orderByDesc('issue_date');
+
+        $invoices = $invoices->paginate(
+            perPage: $perPage,
+            page: $request->input('page', 1)
+        );
 
         return ApiResponse::success($invoices);
     }

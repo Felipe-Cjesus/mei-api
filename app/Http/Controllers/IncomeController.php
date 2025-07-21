@@ -14,14 +14,26 @@ class IncomeController extends Controller
 
     public function index(Request $request)
     {
-        $incomes = Income::where('user_id', Auth::id())->orderByDesc('date')->get();
-        
-        if($incomes) {
-            $incomes = Income::paginate(
-                page: $request->get('page', 1),
-                perPage: $request->get('per_page', 50)
-            );
+        $perPage = $request->input('perPage', 50);
+        $page = $request->input('page', 1);
+        $year = (int) $request->input('year', now()->year);
+
+        if(isset($year) && ($year == 0 || $year == null || $year == '')) {
+            return ApiResponse::error('Invalid year filter.', 400);
         }
+
+        $incomes = Income::where('user_id', Auth::id());
+
+        if ($request->has('year')) {
+            $incomes->whereYear('date', $year);
+        }
+
+        $incomes->orderByDesc('date');
+
+        $incomes = $incomes->paginate(
+            perPage: $perPage,
+            page: $request->input('page', 1)
+        );
         
         return ApiResponse::success($incomes);
     }
@@ -61,9 +73,9 @@ class IncomeController extends Controller
             'description'   => 'sometimes|string|max:255',
             'amount'        => 'sometimes|numeric',
             'date'          => 'sometimes|date',
-            'type'          => 'sometimes|in:manual,nota_fiscal',
+            // 'type'          => 'sometimes|in:manual,nota_fiscal',
             'received'      => 'sometimes|boolean',
-            'document_path' => 'nullable|string',
+            // 'document_path' => 'nullable|string',
         ]);
 
         $income->update($validated);

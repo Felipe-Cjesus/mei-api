@@ -15,15 +15,26 @@ class ExpenseController extends Controller
     // Listar todas as despesas do usuário autenticado
     public function index(Request $request)
     {
-        $expenses = Expense::where('user_id', Auth::id())->orderByDesc('date')->get();
+        $perPage = $request->input('perPage', 50);
+        $page = $request->input('page', 1);
+        $year = $request->input('year', now()->year);
 
-        if($expenses)
-        {
-            $expenses = Expense::paginate(
-                page: $request->get('page', 1),
-                perPage: $request->get('per_page', 50)
-            );
+        if(isset($year) && ($year == 0 || $year == null || $year == '')) {
+            return ApiResponse::error('Invalid year filter.', 400);
         }
+
+        $expenses = Expense::where('user_id', Auth::id());
+
+        if ($request->has('year')) {
+            $expenses->whereYear('date', $year);
+        }
+
+        $expenses->orderByDesc('date');
+
+        $expenses = $expenses->paginate(
+            perPage: $perPage,
+            page: $request->input('page', 1)
+        );
         
         return ApiResponse::success($expenses);
     }

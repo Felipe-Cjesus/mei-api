@@ -16,20 +16,47 @@ class DasPaymentController extends Controller
 
     public function index(Request $request)
     {
-        $payments = DasPayment::where('user_id', Auth::id())->orderByDesc('due_date')->get();
-        if($payments)
-        {
-            $payments = DasPayment::paginate(
-                page: $request->get('page', 1),
-                perPage: $request->get('per_page', 50)
-            );
+        $perPage = $request->input('perPage', 50);
+        $page = $request->input('page', 1);
+        $year = $request->input('year', now()->year);
 
-            $payments = $payments->toArray();
-
-            if(isset($payments['links'])) {
-                unset($payments['links']);
-            }
+        if(isset($year) && ($year == 0 || $year == null || $year == '')) {
+            return ApiResponse::error('Invalid year filter.', 400);
         }
+
+        $payments = DasPayment::where('user_id', Auth::id());
+
+        if ($request->has('year')) {
+            $payments->whereYear('due_date', $year);
+        }
+
+        $payments->orderByDesc('due_date');
+
+        $payments = $payments->paginate(
+            perPage: $perPage,
+            page: $request->input('page', 1)
+        );
+
+        $payments = $payments->toArray();
+
+        if(isset($payments['links'])) {
+            unset($payments['links']);
+        }
+
+        // $payments = DasPayment::where('user_id', Auth::id())->orderByDesc('due_date')->get();
+        // if($payments)
+        // {
+        //     $payments = DasPayment::paginate(
+        //         page: $request->get('page', $page),
+        //         perPage: $request->get('per_page', $perPage)
+        //     );
+
+        //     $payments = $payments->toArray();
+
+        //     if(isset($payments['links'])) {
+        //         unset($payments['links']);
+        //     }
+        // }
 
         if (!$payments) {
             return ApiResponse::error('Nothing found.', 404);
