@@ -18,15 +18,29 @@ class ExpenseController extends Controller
         $perPage = $request->input('perPage', 50);
         $page = $request->input('page', 1);
         $year = $request->input('year', now()->year);
+        $date = $request->input('date');
+        $description = $request->input('description');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
+        }
+
+        if(isset($date) && ($date == 0 || $date == null || $date == '')) {
+            return ApiResponse::error('Invalid date filter.', 400);
         }
 
         $expenses = Expense::where('user_id', Auth::id());
 
         if ($request->has('year')) {
             $expenses->whereYear('date', $year);
+        }
+
+        if ($request->has('date')) {
+            $expenses->whereDate('date', $date);
+        }
+
+        if ($request->has('description')) {
+            $expenses->where('description', 'like', '%' . $description . '%');
         }
 
         $expenses->orderByDesc('date');

@@ -19,6 +19,8 @@ class DasPaymentController extends Controller
         $perPage = $request->input('perPage', 50);
         $page = $request->input('page', 1);
         $year = $request->input('year', now()->year);
+        $status = $request->input('status');
+        $reference = $request->input('reference');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
@@ -28,6 +30,14 @@ class DasPaymentController extends Controller
 
         if ($request->has('year')) {
             $payments->whereYear('due_date', $year);
+        }
+
+        if ($request->has('status')) {
+            $payments->where('status', $status);
+        }
+
+        if ($request->has('reference')) {
+            $payments->where('reference', 'like', '%' . $reference . '%');
         }
 
         $payments->orderByDesc('due_date');

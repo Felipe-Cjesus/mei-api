@@ -17,15 +17,29 @@ class IncomeController extends Controller
         $perPage = $request->input('perPage', 50);
         $page = $request->input('page', 1);
         $year = (int) $request->input('year', now()->year);
+        $date = $request->input('date');
+        $description = $request->input('description');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
+        }
+
+        if(isset($date) && ($date == 0 || $date == null || $date == '')) {
+            return ApiResponse::error('Invalid date filter.', 400);
         }
 
         $incomes = Income::where('user_id', Auth::id());
 
         if ($request->has('year')) {
             $incomes->whereYear('date', $year);
+        }
+
+        if ($request->has('date')) {
+            $incomes->whereDate('date', $date);
+        }
+
+        if ($request->has('description')) {
+            $incomes->where('description', 'like', '%' . $description . '%');
         }
 
         $incomes->orderByDesc('date');
