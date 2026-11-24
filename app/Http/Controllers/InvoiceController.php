@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Helpers\ApiResponse;
+use Illuminate\Validation\Rule;
 
 class InvoiceController extends Controller
 {
@@ -17,12 +18,17 @@ class InvoiceController extends Controller
         $perPage = $request->input('perPage', 50);
         $page = $request->input('page', 1);
         $year = $request->input('year', now()->year);
+        $enterpriseId = $request->input('enterprise_id');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
         }
 
         $invoices = Invoice::where('user_id', Auth::id());
+
+        if ($enterpriseId) {
+            $invoices->where('enterprise_id', $enterpriseId);
+        }
 
         if ($request->has('year')) {
             $invoices->whereYear('issue_date', $year);
@@ -41,6 +47,10 @@ class InvoiceController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'enterprise_id' => [
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'number'      => 'required|string|max:255',
             'issue_date'  => 'required|date',
             'value'       => 'required|numeric',
@@ -64,7 +74,6 @@ class InvoiceController extends Controller
 
     public function show($id)
     {
-        // $invoice = Invoice::where('user_id', Auth::id())->findOrFail($id);
         $invoice = Invoice::findOrFail($id);
         $this->authorize('view', $invoice);
 
@@ -73,11 +82,15 @@ class InvoiceController extends Controller
 
     public function update(Request $request, $id)
     {
-        // $invoice = Invoice::where('user_id', Auth::id())->findOrFail($id);
         $invoice = Invoice::findOrFail($id);
         $this->authorize('update', $invoice);
 
         $validated = $request->validate([
+            'enterprise_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'number'      => 'sometimes|string|max:255',
             'issue_date'  => 'sometimes|date',
             'value'       => 'sometimes|numeric',
@@ -92,12 +105,11 @@ class InvoiceController extends Controller
 
     public function destroy($id)
     {
-        // $invoice = Invoice::where('user_id', Auth::id())->findOrFail($id);
         $invoice = Invoice::findOrFail($id);
         $this->authorize('delete', $invoice);
 
         $invoice->delete();
 
-        return ApiResponse::success([],204,'Invoice deleted successfully');
+        return ApiResponse::success([], 204, 'Invoice deleted successfully');
     }
 }

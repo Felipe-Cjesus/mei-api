@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Helpers\ApiResponse;
+use Illuminate\Validation\Rule;
 
 class EnterpriseController extends Controller
 {
@@ -14,13 +15,9 @@ class EnterpriseController extends Controller
 
     public function index()
     {
-        $enterprise = Enterprise::where('user_id', Auth::id())->first();
+        $enterprises = Enterprise::where('user_id', Auth::id())->get();
 
-        if (!$enterprise) {
-            return ApiResponse::error('Enterprise not found', 404);
-        }
-
-        return ApiResponse::success($enterprise);
+        return ApiResponse::success($enterprises);
     }
 
     public function store(Request $request)
@@ -51,13 +48,13 @@ class EnterpriseController extends Controller
 
         $validated = $request->validate([
             'company_name'  => 'sometimes|string|max:255',
-            'company_id'    => 'sometimes|string|min:14|max:18|unique:enterprises,company_id',
-            'state'         => 'sometimes|string|max:50',
-            'city'          => 'sometimes|string|max:100',
-            'address'       => 'sometimes|string|max:255',
-            'number'        => 'sometimes|string|max:10',
-            'contact'       => 'sometimes|string|max:100',
-            'social_media'  => 'sometimes|string|max:100',
+            'company_id'    => ['sometimes', 'string', 'min:14', 'max:18', Rule::unique('enterprises', 'company_id')->ignore($enterprise->id)],
+            'state'         => 'sometimes|nullable|string|max:50',
+            'city'          => 'sometimes|nullable|string|max:100',
+            'address'       => 'sometimes|nullable|string|max:255',
+            'number'        => 'sometimes|nullable|string|max:10',
+            'contact'       => 'sometimes|nullable|string|max:100',
+            'social_media'  => 'sometimes|nullable|string|max:100',
         ]);
 
         $enterprise->update($validated);
@@ -76,15 +73,10 @@ class EnterpriseController extends Controller
     public function destroy($id)
     {
         $enterprise = Enterprise::findOrFail($id);
-
-        if (!$enterprise) {
-            return ApiResponse::error('Enterprise not found', 404);
-        }
-
         $this->authorize('delete', $enterprise);
 
         $enterprise->delete();
 
-        return ApiResponse::success([],204,'Enterprise deleted');
+        return ApiResponse::success([], 204, 'Enterprise deleted');
     }
 }

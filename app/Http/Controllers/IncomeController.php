@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Helpers\ApiResponse;
+use Illuminate\Validation\Rule;
 
 class IncomeController extends Controller
 {
@@ -19,6 +20,7 @@ class IncomeController extends Controller
         $year = (int) $request->input('year', now()->year);
         $date = $request->input('date');
         $description = $request->input('description');
+        $enterpriseId = $request->input('enterprise_id');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
@@ -29,6 +31,10 @@ class IncomeController extends Controller
         }
 
         $incomes = Income::where('user_id', Auth::id());
+
+        if ($enterpriseId) {
+            $incomes->where('enterprise_id', $enterpriseId);
+        }
 
         if ($request->has('year')) {
             $incomes->whereYear('date', $year);
@@ -55,10 +61,14 @@ class IncomeController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'description' => 'required|string|max:255',
-            'amount'      => 'required|numeric',
-            'date'        => 'required|date',
-            'received'    => 'required|boolean',
+            'enterprise_id' => [
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
+            'description'   => 'required|string|max:255',
+            'amount'        => 'required|numeric',
+            'date'          => 'required|date',
+            'received'      => 'required|boolean',
         ]);
 
         $income = Income::create([
@@ -84,12 +94,15 @@ class IncomeController extends Controller
         $this->authorize('update', $income);
 
         $validated = $request->validate([
+            'enterprise_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'description'   => 'sometimes|string|max:255',
             'amount'        => 'sometimes|numeric',
             'date'          => 'sometimes|date',
-            // 'type'          => 'sometimes|in:manual,nota_fiscal',
             'received'      => 'sometimes|boolean',
-            // 'document_path' => 'nullable|string',
         ]);
 
         $income->update($validated);
@@ -105,6 +118,6 @@ class IncomeController extends Controller
 
         $income->delete();
 
-        return ApiResponse::success([],204,'Income deleted successfully');
+        return ApiResponse::success([], 204, 'Income deleted successfully');
     }
 }

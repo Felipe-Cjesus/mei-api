@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Expense extends Model
 {
@@ -11,6 +12,7 @@ class Expense extends Model
 
     protected $fillable = [
         'user_id',
+        'enterprise_id',
         'description',
         'amount',
         'date',
@@ -20,9 +22,14 @@ class Expense extends Model
 
     protected $appends = ['document_url'];
 
-    public function user()
+    public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function enterprise(): BelongsTo
+    {
+        return $this->belongsTo(Enterprise::class);
     }
 
     public function getDocumentUrlAttribute()

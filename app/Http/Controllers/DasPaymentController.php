@@ -7,8 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Helpers\ApiResponse;
-
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\Rule;
 
 class DasPaymentController extends Controller
 {
@@ -21,12 +20,17 @@ class DasPaymentController extends Controller
         $year = $request->input('year', now()->year);
         $status = $request->input('status');
         $reference = $request->input('reference');
+        $enterpriseId = $request->input('enterprise_id');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
         }
 
         $payments = DasPayment::where('user_id', Auth::id());
+
+        if ($enterpriseId) {
+            $payments->where('enterprise_id', $enterpriseId);
+        }
 
         if ($request->has('year')) {
             $payments->whereYear('due_date', $year);
@@ -53,31 +57,16 @@ class DasPaymentController extends Controller
             unset($payments['links']);
         }
 
-        // $payments = DasPayment::where('user_id', Auth::id())->orderByDesc('due_date')->get();
-        // if($payments)
-        // {
-        //     $payments = DasPayment::paginate(
-        //         page: $request->get('page', $page),
-        //         perPage: $request->get('per_page', $perPage)
-        //     );
-
-        //     $payments = $payments->toArray();
-
-        //     if(isset($payments['links'])) {
-        //         unset($payments['links']);
-        //     }
-        // }
-
-        if (!$payments) {
-            return ApiResponse::error('Nothing found.', 404);
-        }
-
         return ApiResponse::success($payments);
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'enterprise_id' => [
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'reference'     => 'required|string|max:20', // Ex: 05/2025
             'due_date'      => 'required|date',
             'payment_date'  => 'nullable|date',
@@ -94,40 +83,28 @@ class DasPaymentController extends Controller
             return ApiResponse::error('error.', 400);
         }
 
-        return ApiResponse::success($payment,201," DasPayment created successfully.");
+        return ApiResponse::success($payment, 201, "DasPayment created successfully.");
     }
 
     public function show($id)
     {
-        try 
-        {
-            // $payment = DasPayment::findOrFail($id);
-            $payment = DasPayment::find($id);
+        $payment = DasPayment::findOrFail($id);
+        $this->authorize('view', $payment);
 
-            if (!$payment) {
-                return ApiResponse::error('Id not found.', 404,);
-            }
-
-            $this->authorize('view', $payment);
-
-            return ApiResponse::success($payment);
-        }
-        catch (ModelNotFoundException $e) {
-            return ApiResponse::error($e->getMessage(), 404);
-        }
+        return ApiResponse::success($payment);
     }
 
     public function update(Request $request, $id)
     {
         $payment = DasPayment::findOrFail($id);
-        
-        if (!$payment) {
-            return ApiResponse::error('Id not found.', 404);
-        }
-
         $this->authorize('update', $payment);
 
         $validated = $request->validate([
+            'enterprise_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'reference'     => 'sometimes|string|max:20',
             'due_date'      => 'sometimes|date',
             'payment_date'  => 'nullable|date',
@@ -143,15 +120,10 @@ class DasPaymentController extends Controller
     public function destroy($id)
     {
         $payment = DasPayment::findOrFail($id);
-        
-        if (!$payment) {
-            return ApiResponse::error('Id not found.', 404);
-        }
-
         $this->authorize('delete', $payment);
 
         $payment->delete();
 
-        return ApiResponse::success([],204, 'DasPayment deleted successfully.');
+        return ApiResponse::success([], 204, 'DasPayment deleted successfully.');
     }
 }

@@ -10,6 +10,8 @@ use App\Models\Income;
 use App\Policies\IncomePolicy;
 use App\Models\DasPayment;
 use App\Policies\DasPaymentPolicy;
+use App\Models\Enterprise;
+use App\Policies\EnterprisePolicy;
 use Illuminate\Support\ServiceProvider;
 
 class AuthServiceProvider extends ServiceProvider
@@ -35,5 +37,6 @@ class AuthServiceProvider extends ServiceProvider
         Expense::class => ExpensePolicy::class,
         Income::class => IncomePolicy::class,
         DasPayment::class => DasPaymentPolicy::class,
+        Enterprise::class => EnterprisePolicy::class,
     ];
 }

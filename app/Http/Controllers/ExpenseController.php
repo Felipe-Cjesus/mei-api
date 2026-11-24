@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use App\Helpers\ApiResponse;
+use Illuminate\Validation\Rule;
 
 class ExpenseController extends Controller
 {
@@ -20,6 +21,7 @@ class ExpenseController extends Controller
         $year = $request->input('year', now()->year);
         $date = $request->input('date');
         $description = $request->input('description');
+        $enterpriseId = $request->input('enterprise_id');
 
         if(isset($year) && ($year == 0 || $year == null || $year == '')) {
             return ApiResponse::error('Invalid year filter.', 400);
@@ -30,6 +32,10 @@ class ExpenseController extends Controller
         }
 
         $expenses = Expense::where('user_id', Auth::id());
+
+        if ($enterpriseId) {
+            $expenses->where('enterprise_id', $enterpriseId);
+        }
 
         if ($request->has('year')) {
             $expenses->whereYear('date', $year);
@@ -57,6 +63,10 @@ class ExpenseController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            'enterprise_id' => [
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'description'   => 'required|string|max:255',
             'amount'        => 'required|numeric',
             'date'          => 'required|date',
@@ -94,6 +104,11 @@ class ExpenseController extends Controller
         $this->authorize('update', $expense);
 
         $validated = $request->validate([
+            'enterprise_id' => [
+                'sometimes',
+                'nullable',
+                Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
+            ],
             'description'   => 'sometimes|string|max:255',
             'amount'        => 'sometimes|numeric',
             'date'          => 'sometimes|date',
@@ -114,6 +129,6 @@ class ExpenseController extends Controller
 
         $expense->delete();
 
-        return ApiResponse::success([],204,'Expense deleted successfully');
+        return ApiResponse::success([], 204, 'Expense deleted successfully');
     }
 }
