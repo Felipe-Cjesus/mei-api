@@ -343,9 +343,117 @@ class MultiEnterpriseTest extends TestCase
         $this->assertDatabaseMissing('incomes', ['id' => $income->id]);
     }
 
+    public function test_generate_alerts_calculates_revenue_per_enterprise(): void
+    {
+        $user = User::factory()->create();
+
+        $enterprise1 = Enterprise::create([
+            'user_id'      => $user->id,
+            'company_name' => 'MEI Comercio 1',
+            'company_id'   => '12121212000112',
+        ]);
+
+        $enterprise2 = Enterprise::create([
+            'user_id'      => $user->id,
+            'company_name' => 'MEI Servicos 2',
+            'company_id'   => '13131313000113',
+        ]);
+
+        $currentYear = now()->year;
+
+        // Each enterprise has R$ 45.000,00 in revenue (total user = 90.000, but each MEI = 45.000)
+        Income::create([
+            'user_id'       => $user->id,
+            'enterprise_id' => $enterprise1->id,
+            'description'   => 'Vendas 1',
+            'amount'        => 45000.00,
+            'date'          => "{$currentYear}-02-15",
+            'received'      => true,
+        ]);
+
+        Income::create([
+            'user_id'       => $user->id,
+            'enterprise_id' => $enterprise2->id,
+            'description'   => 'Servicos 2',
+            'amount'        => 45000.00,
+            'date'          => "{$currentYear}-02-20",
+            'received'      => true,
+        ]);
+
+        // Run alert generation
+        $this->artisan('alerts:generate')->assertSuccessful();
+
+        // Neither enterprise reached 80% (R$ 64.800,00) of R$ 81.000,00
+        // So NO revenue alerts should be generated (prevents false positive from summing user's companies together!)
+        $this->assertEquals(0, \App\Models\Alert::where('type', 'income')->count());
+
+        // Now add revenue to enterprise 1 to push it to R$ 70.000,00 (> 80%)
+        Income::create([
+            'user_id'       => $user->id,
+            'enterprise_id' => $enterprise1->id,
+            'description'   => 'Vendas Extras 1',
+            'amount'        => 25000.00,
+            'date'          => "{$currentYear}-03-10",
+            'received'      => true,
+        ]);
+
+        $this->artisan('alerts:generate')->assertSuccessful();
+
+        // Exactly 1 alert generated for Enterprise 1
+        $incomeAlerts = \App\Models\Alert::where('type', 'income')->get();
+        $this->assertCount(1, $incomeAlerts);
+        $this->assertEquals($enterprise1->id, $incomeAlerts->first()->enterprise_id);
+        $this->assertStringContainsString('MEI Comercio 1', $incomeAlerts->first()->title);
+    }
+
+    public function test_alerts_can_be_filtered_by_enterprise_id_via_api(): void
+    {
+        $user = User::factory()->create();
+
+        $enterpriseA = Enterprise::create([
+            'user_id'      => $user->id,
+            'company_name' => 'Empresa A',
+            'company_id'   => '14141414000114',
+        ]);
+
+        $enterpriseB = Enterprise::create([
+            'user_id'      => $user->id,
+            'company_name' => 'Empresa B',
+            'company_id'   => '15151515000115',
+        ]);
+
+        \App\Models\Alert::create([
+            'user_id'       => $user->id,
+            'enterprise_id' => $enterpriseA->id,
+            'title'         => 'Alerta Empresa A',
+            'message'       => 'Mensagem A',
+            'type'          => 'das',
+        ]);
+
+        \App\Models\Alert::create([
+            'user_id'       => $user->id,
+            'enterprise_id' => $enterpriseB->id,
+            'title'         => 'Alerta Empresa B',
+            'message'       => 'Mensagem B',
+            'type'          => 'das',
+        ]);
+
+        Sanctum::actingAs($user);
+
+        $resA = $this->getJson("/api/alerts?enterprise_id={$enterpriseA->id}");
+        $resA->assertStatus(200);
+        $this->assertCount(1, $resA->json('data'));
+        $this->assertEquals('Alerta Empresa A', $resA->json('data.0.title'));
+
+        $resB = $this->getJson("/api/alerts?enterprise_id={$enterpriseB->id}");
+        $resB->assertStatus(200);
+        $this->assertCount(1, $resB->json('data'));
+        $this->assertEquals('Alerta Empresa B', $resB->json('data.0.title'));
+    }
+
     public function test_migration_rollback_and_run_succeeds(): void
     {
-        $this->artisan('migrate:rollback', ['--step' => 1])->assertSuccessful();
+        $this->artisan('migrate:rollback', ['--step' => 2])->assertSuccessful();
         $this->artisan('migrate')->assertSuccessful();
     }
 }

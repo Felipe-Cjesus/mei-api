@@ -70,4 +70,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(DasPayment::class);
     }
+
+    public function alerts(): HasMany
+    {
+        return $this->hasMany(Alert::class);
+    }
 }

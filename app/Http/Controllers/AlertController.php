@@ -14,6 +14,11 @@ class AlertController extends Controller
     {
         $query = Alert::where('user_id', Auth::id());
 
+        // Filtro por enterprise_id
+        if ($request->filled('enterprise_id')) {
+            $query->where('enterprise_id', $request->input('enterprise_id'));
+        }
+
         // Filtro por leitura
         if ($request->has('read')) {
             $read = $request->boolean('read');
@@ -26,10 +31,6 @@ class AlertController extends Controller
         }
     
         $alerts = $query->orderBy('created_at', 'desc')->get();
-    
-        if (!$alerts) {
-            return ApiResponse::error('Alert not found.', 404);
-        }
 
         return ApiResponse::success($alerts);
     }
@@ -39,10 +40,6 @@ class AlertController extends Controller
         $alert = Alert::where('id', $id)
             ->where('user_id', Auth::id())
             ->firstOrFail();
-
-        if (!$alert) {
-            return ApiResponse::error('Alert not found.', 404);
-        }
 
         $alert->update([
             'read'    => true,
