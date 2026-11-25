@@ -302,19 +302,50 @@ class MultiEnterpriseTest extends TestCase
         $this->assertEquals('Empresa Atualizada', $response->json('data.company_name'));
     }
 
-    public function test_nullable_enterprise_id_allows_records_without_enterprise(): void
+    public function test_enterprise_id_is_required_for_financial_and_invoice_records(): void
     {
         $user = User::factory()->create();
         Sanctum::actingAs($user);
 
+        // Missing enterprise_id in Income
         $resIncome = $this->postJson('/api/incomes', [
-            'description' => 'Receita Geral',
+            'description' => 'Receita Sem Empresa',
             'amount'      => 100.00,
             'date'        => '2026-01-01',
             'received'    => true,
         ]);
-        $resIncome->assertStatus(201);
-        $this->assertNull($resIncome->json('data.enterprise_id'));
+        $resIncome->assertStatus(422);
+        $resIncome->assertJsonValidationErrors(['enterprise_id']);
+
+        // Missing enterprise_id in Expense
+        $resExpense = $this->postJson('/api/expenses', [
+            'description' => 'Despesa Sem Empresa',
+            'amount'      => 50.00,
+            'date'        => '2026-01-01',
+            'type'        => 'manual',
+        ]);
+        $resExpense->assertStatus(422);
+        $resExpense->assertJsonValidationErrors(['enterprise_id']);
+
+        // Missing enterprise_id in Invoice
+        $resInvoice = $this->postJson('/api/invoices', [
+            'number'      => 'NF-SEM-EMP',
+            'issue_date'  => '2026-01-01',
+            'value'       => 500.00,
+            'description' => 'NF sem empresa',
+        ]);
+        $resInvoice->assertStatus(422);
+        $resInvoice->assertJsonValidationErrors(['enterprise_id']);
+
+        // Missing enterprise_id in DasPayment
+        $resDas = $this->postJson('/api/das-payments', [
+            'reference' => '01/2026',
+            'due_date'  => '2026-02-20',
+            'amount'    => 75.00,
+            'status'    => 'pending',
+        ]);
+        $resDas->assertStatus(422);
+        $resDas->assertJsonValidationErrors(['enterprise_id']);
     }
 
     public function test_enterprise_cascade_deletes_associated_records(): void

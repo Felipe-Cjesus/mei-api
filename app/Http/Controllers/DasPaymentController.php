@@ -64,7 +64,7 @@ class DasPaymentController extends Controller
     {
         $validated = $request->validate([
             'enterprise_id' => [
-                'nullable',
+                'required',
                 Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
             ],
             'reference'     => 'required|string|max:20', // Ex: 05/2025
@@ -102,7 +102,7 @@ class DasPaymentController extends Controller
         $validated = $request->validate([
             'enterprise_id' => [
                 'sometimes',
-                'nullable',
+                'required',
                 Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
             ],
             'reference'     => 'sometimes|string|max:20',

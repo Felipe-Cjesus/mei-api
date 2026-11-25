@@ -64,7 +64,7 @@ class ExpenseController extends Controller
     {
         $validated = $request->validate([
             'enterprise_id' => [
-                'nullable',
+                'required',
                 Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
             ],
             'description'   => 'required|string|max:255',
@@ -106,7 +106,7 @@ class ExpenseController extends Controller
         $validated = $request->validate([
             'enterprise_id' => [
                 'sometimes',
-                'nullable',
+                'required',
                 Rule::exists('enterprises', 'id')->where(fn ($query) => $query->where('user_id', Auth::id())),
             ],
             'description'   => 'sometimes|string|max:255',
